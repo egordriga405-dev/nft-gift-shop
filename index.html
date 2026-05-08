@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NFT Gift Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eaeaea;
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #16213e;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid #2a2a4a;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid #2a2a5a;
+            background: #0f0f23;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #667eea;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .results {
+            margin-top: 16px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #1e2a45;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .result-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #4ecca3;
+        }
+
+        .profit-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .profit-positive {
+            background: rgba(78, 204, 163, 0.15);
+            color: #4ecca3;
+        }
+
+        .note {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .commission-tag {
+            display: inline-block;
+            background: #2a2a4a;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            margin-right: 4px;
+            color: #aaa;
+        }
+
+        .best-choice {
+            border: 2px solid #4ecca3;
+            border-radius: 14px;
+            padding: 14px;
+            background: rgba(78, 204, 163, 0.05);
+            margin-top: 10px;
+        }
+
+        .best-choice::before {
+            content: '✅ Оптимальный вариант';
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #4ecca3;
+            margin-bottom: 8px;
+        }
+
+        .ton-value {
+            color: #f0b90b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 NFT Gift Calculator</h1>
+        <p class="subtitle">Расчёт цены продажи Telegram-подарков</p>
+
+        <div class="card">
+            <div class="card-title">📊 Исходные данные</div>
+
+            <div class="input-group">
+                <label>Цена покупки (TON)</label>
+                <input type="number" id="buyPrice" placeholder="Например: 5.5" step="0.01" min="0">
+            </div>
+
+            <div class="input-group">
+                <label>Курс TON (₽)</label>
+                <input type="number" id="tonRate" placeholder="Например: 106" step="0.01" min="0" value="106">
+            </div>
+
+            <div class="input-group">
+                <label>Желаемая прибыль (%)</label>
+                <input type="number" id="profitPercent" placeholder="Например: 15" step="0.1" min="0" value="15">
+            </div>
+
+            <button class="btn btn-primary" onclick="calculate()">Рассчитать</button>
+        </div>
+
+        <div class="card" id="resultsCard" style="display: none;">
+            <div class="card-title">💰 Результаты расчёта</div>
+            <div class="results" id="resultsContainer"></div>
+            <p class="note">Цены рассчитаны с учётом комиссии маркетплейса.<br>Выбирайте площадку, где выставляете подарок.</p>
+        </div>
+    </div>
+
+    <script>
+        // Telegram Mini App integration
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            // Установка цвета темы Telegram
+            document.body.style.backgroundColor = tg.themeParams.bg_color || '#1a1a2e';
+            document.body.style.color = tg.themeParams.text_color || '#eaeaea';
+        }
+
+        function calculate() {
+            const buyPrice = parseFloat(document.getElementById('buyPrice').value);
+            const tonRate = parseFloat(document.getElementById('tonRate').value);
+            const profitPercent = parseFloat(document.getElementById('profitPercent').value);
+
+            // Валидация
+            if (isNaN(buyPrice) || buyPrice <= 0) {
+                showError('Укажите корректную цену покупки');
+                return;
+            }
+            if (isNaN(tonRate) || tonRate <= 0) {
+                showError('Укажите корректный курс TON');
+                return;
+            }
+            if (isNaN(profitPercent) || profitPercent < 0) {
+                showError('Укажите корректный процент прибыли');
+                return;
+            }
+
+            // Стоимость покупки в рублях
+            const buyPriceRub = buyPrice * tonRate;
+
+            // Комиссии маркетплейсов (актуальные данные)
+            const marketplaces = [
+                { name: 'Portals (2.5%)', commission: 2.5 },
+                { name: 'Getgems (5%)', commission: 5 },
+                { name: 'Mrkt (8%)', commission: 8 },
+                { name: 'Tonnel (10%)', commission: 10 },
+                { name: 'Telegram Market (20%)', commission: 20 }
+            ];
+
+            let html = '';
+
+            marketplaces.forEach((mp, index) => {
+                const commissionMultiplier = 1 + mp.commission / 100;
+                const desiredProfitMultiplier = 1 + profitPercent / 100;
+
+                // Цена продажи в TON: покрываем цену покупки + прибыль + комиссию
+                const sellPriceTON = buyPrice * desiredProfitMultiplier * commissionMultiplier;
+
+                // Чистая прибыль после комиссии
+                const netRevenueTON = sellPriceTON / commissionMultiplier;
+                const netProfitTON = netRevenueTON - buyPrice;
+                const netProfitRub = netProfitTON * tonRate;
+
+                // Проверка: достаточно ли прибыли
+                const actualProfitPercent = (netProfitTON / buyPrice) * 100;
+
+                const isBest = mp.commission <= 5;
+                const cardClass = isBest ? 'result-item best-choice' : 'result-item';
+
+                html += `
+                    <div style="${isBest ? 'border: 2px solid #4ecca3; border-radius: 14px; padding: 14px; background: rgba(78, 204, 163, 0.05); margin-bottom: 10px;' : 'border-bottom: 1px solid #1e2a45; padding: 12px 0;'}">
+                        ${isBest ? '<div style="font-size: 12px; font-weight: 700; color: #4ecca3; margin-bottom: 8px;">✅ Оптимальный вариант</div>' : ''}
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: ${isBest ? '6' : '0'}px;">
+                            <span style="font-size: 14px; color: #aaa;">
+                                ${mp.name}
+                                <span class="commission-tag" style="margin-left: 6px;">комиссия ${mp.commission}%</span>
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                            <span style="font-size: 13px; color: #888;">Цена продажи:</span>
+                            <span style="font-weight: 700;" class="ton-value">${sellPriceTON.toFixed(2)} TON</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                            <span style="font-size: 13px; color: #888;">В рублях:</span>
+                            <span style="font-weight: 700; color: #4ecca3;">${(sellPriceTON * tonRate).toFixed(0)} ₽</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                            <span style="font-size: 13px; color: #888;">Чистая прибыль:</span>
+                            <span style="font-weight: 700; color: #4ecca3;">+${netProfitTON.toFixed(2)} TON (${netProfitRub.toFixed(0)} ₽)</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('resultsContainer').innerHTML = html;
+            document.getElementById('resultsCard').style.display = 'block';
+
+            // Прокрутка к результатам
+            document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+
+            // Отправка данных в Telegram (для аналитики)
+            if (tg) {
+                tg.sendData(JSON.stringify({
+                    buyPrice,
+                    tonRate,
+                    profitPercent,
+                    timestamp: new Date().toISOString()
+                }));
+            }
+        }
+
+        function showError(message) {
+            if (tg) {
+                tg.showPopup({ title: 'Ошибка', message });
+            } else {
+                alert(message);
+            }
+        }
+    </script>
+</body>
+</html>
