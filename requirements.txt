@@ -1,0 +1,4 @@
+aiogram>=3.0
+tonnelmp>=1.1.0
+curl_cffi>=0.5.0
+fake_useragent>=1.4.0
